@@ -53,9 +53,11 @@ class CircleScaleSeekbarPaint extends StatefulWidget{
   final ProgressChanged progressChanged;
   //填充空白的刻度
   final SeekbarFillBlank seekbarFillBlank;
-
+  //显示刻度字
+  final SeekbarScaleText seekbarScaleText;
   const CircleScaleSeekbarPaint({
     Key key,
+    this.seekbarScaleText,
     this.seekbarFillBlank,
     this.banAreaAngle = 0 ,
     this.rotateAngle = 135,
@@ -96,12 +98,14 @@ class CircleScaleSeekbarPaint extends StatefulWidget{
         seekbarMobileText : seekbarMobileText,
         isShowCursor : isShowCursor ,
         isShowCenterBitmap:isShowCenterBitmap,
+        seekbarScaleText : seekbarScaleText,
         openAngle:openAngle);
   }
 }
 
 class CircleScaleSeekbarPaintState extends State<CircleScaleSeekbarPaint>  with SingleTickerProviderStateMixin {
   AnimationController progressController;
+  final SeekbarScaleText seekbarScaleText;
   final double openAngle;
   final double angleRate;
   final int minTemp;
@@ -131,6 +135,7 @@ class CircleScaleSeekbarPaintState extends State<CircleScaleSeekbarPaint>  with 
   double angleOne = 0;
 
   CircleScaleSeekbarPaintState({
+    this.seekbarScaleText,
     this.seekbarFillBlank,
     this.seekbarMobileText,
     this.seekbarCenterBitmap,
@@ -315,22 +320,22 @@ class CircleScaleSeekbarPaintState extends State<CircleScaleSeekbarPaint>  with 
               offstage: !isMobleText,
             ),
 
-            Offstage(
-              child: Transform(
+           Transform(
                 alignment: Alignment.center,
-                transform: Matrix4.rotationZ(degToRad(rotateAngle)),
+                transform:  Matrix4.rotationZ(degToRad(0)),
                 child: Container(
                   width: width,
                   height: height,
                   child: CustomPaint(
                     key: widget.key,
                     size: size,
-                    painter: Scale1Painter(seekbarScale1: seekbarScale1,angleOne:angleOne,angleRate:angleRate,minTemp: minTemp,maxTemp: maxTemp,width: width,height: height,openAngle: seekbarScale1.openAngle),
+                    painter: ScaleTextPaint(seekbarScaleText: seekbarScaleText,angleOne:angleOne,angleRate:angleRate,minTemp: minTemp,maxTemp: maxTemp,width: width,height: height,openAngle: seekbarScale1.openAngle),
                   ) ,
                 ),
               ),
-              offstage: false,
-            )
+
+
+
 //            Transform(
 //              alignment: Alignment.center,
 //              child: Transform(
@@ -679,10 +684,10 @@ class ScaleTextPaint extends CustomPainter {
   final double height;
   final double openAngle;
   final double angleRate;
-  final SeekbarScale1 seekbarScale1;
+  final SeekbarScaleText seekbarScaleText;
   final double angleOne;
   ScaleTextPaint({
-    this.seekbarScale1,
+    this.seekbarScaleText,
     this.angleOne,
     this.angleRate,
     this.minTemp,
@@ -692,39 +697,76 @@ class ScaleTextPaint extends CustomPainter {
     this.openAngle});
   @override
   void paint(Canvas canvas, Size size) {
-    final Offset offsetCenter = Offset(size.width/2, size.height/2);
-    final Offset zeroPoint = Offset(0.0,0.0);
-    final scalePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..color = Color(seekbarScale1.colorInt)
-      ..strokeWidth = seekbarScale1.scaleWidth
-      ..strokeCap = seekbarScale1.strokeType;
 
-    ui.ParagraphBuilder pb = ui.ParagraphBuilder(ParagraphStyle);
-    if(seekbarScale1.showDiffHeight)
-      getDiffLineOffset(angleOne,canvas,scalePaint,size,angleRate);
-    else
-      getLineOffset(angleOne,canvas,scalePaint,size,angleRate);
+//    final scalePaint = Paint()
+//      ..style = PaintingStyle.stroke
+//      ..color = Color(0xff000000)
+//      ..strokeWidth = seekbarScale1.scaleWidth
+//      ..strokeCap = seekbarScale1.strokeType;
+
+//    canvas.drawParagraph(paragraph, new Offset(size.width/2+cos(degToRad(1))*seekbarScale1.scaleRaidus,size.width/2+sin(degToRad(1))*seekbarScale1.scaleRaidus));
+
+
+//    if(seekbarScale1.showDiffHeight)
+//      getDiffLineOffset(angleOne,canvas,scalePaint,size,angleRate,paragraph);
+//    else
+      getLineOffset(angleOne,canvas,size,angleRate,minTemp,maxTemp);
     // TODO: implement paint
   }
 //
-  getDiffLineOffset(double angle,Canvas canvas,Paint scalePaint,Size size,double angleRate){
+//  getDiffLineOffset(double angle,Canvas canvas,Paint scalePaint,Size size,double angleRate,ParagraphBuilder pb){
+//    pb.pushStyle(ui.TextStyle(color:Color(0xFF000000)));
+//    ui.ParagraphConstraints pc = ParagraphConstraints(width: 2);
+//    Paragraph paragraph = pb.build()..layout(pc);
+//    int count = 0;
+//    for(double i = 0; i <=  angle * (maxTemp - minTemp); angleRate == 0 ? i = i+angle :i = i+angle/angleRate){
+//      Offset point ;
+//      pb.addText(count.toString());
+//        canvas.drawParagraph(paragraph, new Offset(size.width/2+cos(degToRad(90))*seekbarScaleText.textRadius,size.width/2+sin(degToRad(90))*seekbarScaleText.textRadius));
+////        canvas.draw
+////      else
+////      if(count % 5 ==0)
+////        canvas.drawLine(new Offset(size.width/2+cos(degToRad(i))*seekbarScale1.scaleRaidus,size.width/2+sin(degToRad(i))*seekbarScale1.scaleRaidus),
+////            new Offset(size.width/2+cos(degToRad(i))*(seekbarScale1.scaleRaidus+seekbarScale1.scaleLongerHeight),size.width/2+sin(degToRad(i))*(seekbarScale1.scaleRaidus+seekbarScale1.scaleLongerHeight)), scalePaint);
+//      count++;
+//    }
+//  }
+  getLineOffset(double angle,Canvas canvas,Size size,double angleRate,int minTemp,int maxTemp){
     int count = 0;
-    for(double i = 0; i <=  angle * (maxTemp - minTemp); angleRate == 0 ? i = i+angle :i = i+angle/angleRate){
-      if(i == 0)
-        canvas.draw
-      else
-      if(count % 5 ==0)
-        canvas.drawLine(new Offset(size.width/2+cos(degToRad(i))*seekbarScale1.scaleRaidus,size.width/2+sin(degToRad(i))*seekbarScale1.scaleRaidus),
-            new Offset(size.width/2+cos(degToRad(i))*(seekbarScale1.scaleRaidus+seekbarScale1.scaleLongerHeight),size.width/2+sin(degToRad(i))*(seekbarScale1.scaleRaidus+seekbarScale1.scaleLongerHeight)), scalePaint);
-      count++;
-    }
-  }
-  getLineOffset(double angle,Canvas canvas,Paint scalePaint,Size size,double angleRate){
-    int count = 0;
-    for(double i = 0; i <=  angle * (maxTemp - minTemp); angleRate == 0 ? i = i+angle :i = i+angle/angleRate){
-      canvas.drawLine(new Offset(size.width/2+cos(degToRad(i))*seekbarScale1.scaleRaidus,size.width/2+sin(degToRad(i))*seekbarScale1.scaleRaidus),
-          new Offset(size.width/2+cos(degToRad(i))*(seekbarScale1.scaleRaidus+seekbarScale1.scaleHeight),size.width/2+sin(degToRad(i))*(seekbarScale1.scaleRaidus+seekbarScale1.scaleHeight)), scalePaint);
+    Paragraph paragraph;
+    ui.ParagraphConstraints pc;
+    ParagraphBuilder pb ;
+    for(double i = seekbarScaleText.firstAngle; i <=  (maxTemp - minTemp) * angleOne + seekbarScaleText.firstAngle; i = i+angleOne * seekbarScaleText.howAngle){
+      Offset point ;
+      if(i == seekbarScaleText.firstAngle){
+        pb = ParagraphBuilder(ParagraphStyle(
+          textAlign:  TextAlign.center,
+          fontWeight: FontWeight.w300,
+          fontStyle: FontStyle.normal,
+          fontSize: 15.0,
+        ));
+//      pb.addText(count.toString());
+//        if( i == seekbarScaleText.firstAngle)
+        pb.pushStyle(seekbarScaleText.textStyle == null ? ui.TextStyle(fontSize: 15,color:Color(0xFF000000)) : seekbarScaleText.textStyle);
+        pb.addText(minTemp.toString());
+        pc = ParagraphConstraints(width: seekbarScaleText.constraintsWidth);
+        paragraph = pb.build()..layout(pc);
+        canvas.drawParagraph(paragraph, new Offset(size.width/2+cos(degToRad(i))*seekbarScaleText.textRadius - paragraph.width/2  ,size.width/2+sin(degToRad(i))*seekbarScaleText.textRadius - paragraph.height/2));
+      }else{
+        pb = ParagraphBuilder(ParagraphStyle(
+          textAlign:  TextAlign.center,
+          fontWeight: FontWeight.w300,
+          fontStyle: FontStyle.normal,
+          fontSize: 15.0,
+        ));
+//      pb.addText(count.toString());
+//        if( i == seekbarScaleText.firstAngle)
+        pb.pushStyle(seekbarScaleText.textStyle == null ? ui.TextStyle(fontSize: 15,color:Color(0xFF000000)) : seekbarScaleText.textStyle);
+        pb.addText(((i - seekbarScaleText.firstAngle)/ angleOne + minTemp).toInt().toString());
+        pc = ParagraphConstraints(width: seekbarScaleText.constraintsWidth);
+        paragraph = pb.build()..layout(pc);
+        canvas.drawParagraph(paragraph, new Offset(size.width/2+cos(degToRad(i))*seekbarScaleText.textRadius - paragraph.width/2  ,size.width/2+sin(degToRad(i))*seekbarScaleText.textRadius - paragraph.height/2));
+      }
       count++;
     }
   }

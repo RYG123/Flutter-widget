@@ -1,6 +1,7 @@
 import 'package:circle_seekbar/circle_seekbar/CircleScaleSeekbarPaint.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 
 class CircleScaleSeekbar extends StatefulWidget{
   final double centerImageWidth;
@@ -37,13 +38,14 @@ class CircleScaleSeekbarState extends State<CircleScaleSeekbar>{
             seekbarScale2 : SeekbarScale2(scaleWidth: 3),
             angleRate: 1,
             minTemp: 10,
-            maxTemp: 50,
+            maxTemp: 40,
             seekbarCursor: new SeekbarCursor(showText: true,textHeadingAngle: 100,mainAngle: -45),
             seekbarCenterBitmap: new SeekbarCenterBitmap(),
             seekbarMobileText: SeekbarMobileText(textHeadingAngle : 100),
             isMobleText: false,
-            isShowCursor: true,
-            isShowCenterBitmap :true,
+            isShowCursor: false,
+            isShowCenterBitmap :false,
+            seekbarScaleText: SeekbarScaleText(),
           )
         ],
     );
@@ -113,17 +115,21 @@ class SeekbarMobileText{
 }
 
 class SeekbarScaleText{
-  final double angleOne;
+  final double howAngle;
   final double textRadius;
-  final TextStyle textStyle;
+  final double firstAngle;
+  final double constraintsWidth;
+  final ui.TextStyle textStyle;
 
-  SeekbarScaleText({this.textRadius,this.textStyle,this.angleOne});
+  SeekbarScaleText({this.constraintsWidth = 20.0,this.firstAngle = 135 ,this.textRadius = 100,this.textStyle,this.howAngle = 5});
 }
 
 class SeekbarFillBlank{
   final double angleRotate;
   SeekbarFillBlank({this.angleRotate = 54});
 }
+
+
 
 //class SeekbarFillBlank{
 //  final double angleRotate;
